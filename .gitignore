@@ -1,0 +1,109 @@
+# Environment files with sensitive data
+deploy.env
+*.env
+!*.env.example
+
+# Log files
+*.log
+logs/
+deploy.log
+
+# Build artifacts and releases
+releases/
+builds/
+dist/
+*.apk
+*.ipa
+*.aab
+*.app
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+
+# Certificates and keys
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+*.keystore
+*.jks
+keystore/
+certificates/
+
+# Fastlane specific
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/metadata
+
+# Node modules (if any deployment tools use Node)
+node_modules/
+
+# Python cache (if any deployment tools use Python)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Cache directories
+.cache/
+cache/
+
+# Docker related (if using containerized deployments)
+.dockerignore
+
+# Terraform state files (if using infrastructure as code)
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Ansible vault files
+vault.yml
+*.vault
+
+# SSH keys
+id_rsa
+id_rsa.pub
+*.pem
+
+# Database dumps
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+../android/fastlane/report.xml

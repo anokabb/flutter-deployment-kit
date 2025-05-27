@@ -1,0 +1,54 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Deploy the latest IPA to TestFlight"
+  lane :deploy do
+    # Use automatic code signing unless you prefer manual profiles
+    automatic_code_signing(
+      path: "Runner.xcodeproj",
+      use_automatic_signing: true,
+      team_id: ENV.fetch("IOS_TEAM_ID", nil)
+    )
+
+    # Authenticate with App Store Connect using key generated in deploy.sh
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: "AppStoreConnect.p8"
+    )
+
+    # Dynamically locate the IPA if path not provided
+    ipa_path = ENV["IPA_PATH"]
+    if ipa_path.nil? || ipa_path.empty?
+      ipa_path = Dir["../build/ios/ipa/*.ipa"].first
+    end
+    
+    if ipa_path.nil? || !File.exist?(ipa_path)
+      UI.user_error!("IPA file not found. Expected at: #{ipa_path}")
+    end
+    
+    UI.message("Uploading IPA: #{ipa_path}")
+    UI.message("App Identifier: #{ENV['IOS_APP_IDENTIFIER']}")
+
+    upload_to_testflight(
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true,
+      app_identifier: ENV["IOS_APP_IDENTIFIER"]
+    )
+  end
+end 

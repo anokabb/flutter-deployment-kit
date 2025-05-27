@@ -1,0 +1,91 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Deploy a new version to the Google Play"
+  lane :deploy_google_play do
+    # Get AAB path from environment or fallback to default location
+    aab_path = ENV["AAB_PATH"]
+    if aab_path.nil? || aab_path.empty?
+      aab_path = Dir["../build/app/outputs/bundle/androidRelease/*.aab"].first
+    end
+    
+    if aab_path.nil? || !File.exist?(aab_path)
+      UI.user_error!("AAB file not found. Expected at: #{aab_path}")
+    end
+    
+    UI.message("Uploading AAB: #{aab_path}")
+    UI.message("Package name: #{ENV['PACKAGE_NAME']}")
+    UI.message("Track: #{ENV.fetch('GOOGLE_PLAY_TRACK', 'internal')}")
+    
+    upload_to_play_store(
+      aab: aab_path,
+      package_name: ENV["PACKAGE_NAME"],
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      track: ENV.fetch("GOOGLE_PLAY_TRACK", "internal"),
+    )
+  end
+
+  desc "Deploy a new version to Huawei AppGallery"
+  lane :deploy_huawei_appgallery do
+    # Check if required environment variables are set
+    unless ENV["HUAWEI_CLIENT_ID"] && ENV["HUAWEI_CLIENT_SECRET"] && ENV["HUAWEI_APP_ID"]
+      UI.user_error!("Missing required Huawei AppGallery credentials. Please check your deploy.env file.")
+    end
+
+    # Validate that Client ID is different from App ID (common mistake)
+    if ENV["HUAWEI_CLIENT_ID"] == ENV["HUAWEI_APP_ID"]
+      UI.user_error!("HUAWEI_CLIENT_ID cannot be the same as HUAWEI_APP_ID. Please check your credentials - they serve different purposes.")
+    end
+
+    # Get AAB path from environment or fallback to default location
+    aab_path = ENV["AAB_PATH"]
+    if aab_path.nil? || aab_path.empty?
+      aab_path = Dir["../build/app/outputs/bundle/huaweiRelease/*.aab"].first
+    end
+    
+    if aab_path.nil? || !File.exist?(aab_path)
+      UI.user_error!("AAB file not found. Expected at: #{aab_path}")
+    end
+    
+    UI.message("Uploading AAB to Huawei AppGallery: #{aab_path}")
+    UI.message("App ID: #{ENV['HUAWEI_APP_ID']}")
+    UI.message("Client ID: #{ENV['HUAWEI_CLIENT_ID']}")
+
+    begin
+      # Deploy to Huawei AppGallery
+      huawei_appgallery_connect(
+        client_id: ENV["HUAWEI_CLIENT_ID"],
+        client_secret: ENV["HUAWEI_CLIENT_SECRET"],
+        app_id: ENV["HUAWEI_APP_ID"],
+        apk_path: aab_path,
+        # Optional, Parameter beyond this are optional
+        # If you are facing errors when submitting for review, increase the delay time before submitting the app for review using this option:
+        delay_before_submit_for_review: 20,
+        # if you're uploading aab instead of apk, specify is_aab to true and specify path to aab file on apk_path
+        is_aab: true, 
+        submit_for_review: false,
+      )
+      UI.success("Successfully uploaded to Huawei AppGallery!")
+    rescue => e
+      UI.error("Failed to upload to Huawei AppGallery: #{e.message}")
+      UI.error("Please verify your HUAWEI_CLIENT_ID and HUAWEI_CLIENT_SECRET are correct and different from HUAWEI_APP_ID")
+      raise e
+    end
+  end
+end 
