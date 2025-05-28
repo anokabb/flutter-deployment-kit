@@ -72,7 +72,7 @@ deploy_platform() {
       local ipa_src
       ipa_src=$(find build/ios/ipa -maxdepth 1 -name "*.ipa" | head -n1 || true)
       if [[ -n "$ipa_src" ]]; then
-        mv "$ipa_src" "$NEW_APP_PATH"
+        cp "$ipa_src" "$NEW_APP_PATH"
       else
         log ERROR "No .ipa file produced by Flutter build"
         return 1
@@ -98,7 +98,7 @@ deploy_platform() {
       local aab_search_path
 
       if [[ "${FLAVOR_ENABLED:-false}" == "true" ]]; then
-          if [[ "$platform" != "android" && "$platform" != "huawei" ]]; then
+          if [[ "$platform" == "android" || "$platform" == "huawei" ]]; then
               aab_search_path="build/app/outputs/bundle/${platform}Release"
               log INFO "FLAVOR_ENABLED is true. Platform '$platform' was used as flavor. Searching AAB in: $aab_search_path"
           else
@@ -123,7 +123,7 @@ deploy_platform() {
       # Result path for Android
       NEW_APP_PATH="deployment/releases/${APP_NAME}.aab"
       mkdir -p deployment/releases
-      mv "$aab_src" "$NEW_APP_PATH"
+      cp "$aab_src" "$NEW_APP_PATH"
       log INFO "Copied AAB to: $NEW_APP_PATH"
     fi
   fi
