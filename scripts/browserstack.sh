@@ -49,7 +49,8 @@ upload_to_browserstack() {
 
   # Add Google Play link for test_app branch if it's Android
   if [[ "$platform" == "android" && "$BRANCH" == "test_app" && -n "$DEV_USER_ID" && -n "$GOOGLE_PLAY_LINK_TEST_APP" ]]; then
-    MESSAGE_TEXT="$MESSAGE_TEXT\n<@$DEV_USER_ID> SubmitApp to Google Play: $GOOGLE_PLAY_LINK_TEST_APP"
+    MESSAGE_TEXT="$MESSAGE_TEXT \n <@$DEV_USER_ID> Submit App to Google Play: <${GOOGLE_PLAY_LINK_TEST_APP}|Submit>"
+
   fi
 
   echo "$MESSAGE_TEXT"
