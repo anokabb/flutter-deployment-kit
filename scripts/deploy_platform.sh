@@ -14,7 +14,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/notification.sh"
 deploy_platform() {
   local platform="$1"  # android | huawei | ios
 
-  local platform_capitalised="$(echo ${platform:0:1} | tr '[:lower:]' '[:upper:]')${platform:1}"
+  local platform_capitalised="$(echo ${platform^^})"
   APP_NAME="${APP_PREFIX}-${platform_capitalised}-${BUILD_NUMBER}"
   export APP_NAME
 
