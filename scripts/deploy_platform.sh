@@ -17,7 +17,6 @@ deploy_platform() {
   APP_NAME="${APP_PREFIX}-${platform_capitalised}-${BUILD_NUMBER}"
   export APP_NAME
   echo "APP_NAME: $APP_NAME"
-  exit 1
 
   log INFO "Starting deployment for $platform (branch=$BRANCH, build=$BUILD_NUMBER)"
 
