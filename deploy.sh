@@ -125,8 +125,8 @@ fi
 # ----------------------------------------
 BRANCH=$(git -C "$PROJECT_ROOT" rev-parse --abbrev-ref HEAD)
 if [[ "$DEBUG" != "true" ]]; then
-  if [[ ! "$BRANCH" =~ ^(master|test_app)$ ]]; then
-    log ERROR "Unsupported branch '$BRANCH' – must be master or test_app"
+  if [[ ! "$BRANCH" =~ ^(master|main|test_app)$ ]]; then
+    log ERROR "Unsupported branch '$BRANCH' – must be master or main or test_app"
     exit 1
   fi
 fi
