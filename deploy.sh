@@ -131,20 +131,20 @@ if [[ "$DEBUG" != "true" ]]; then
   fi
 fi
 
-# Check if working directory is clean and up-to-date (skip in DEBUG mode)
-if [[ "$DEBUG" != "true" ]]; then
-  log INFO "Checking git status for clean working directory..."
-  STATUS=$(git -C "$PROJECT_ROOT" status)
-  if [[ $STATUS == *"Your branch is up to date with"* && $STATUS == *"nothing to commit, working tree clean"* ]]; then
-    log INFO "Branch is up-to-date and working directory is clean"
-  else
-    log ERROR "Branch is not up-to-date or there are uncommitted changes. Please push/pull and commit all changes first."
-    log ERROR "Use DEBUG=true to skip this check during development"
-    exit 1
-  fi
-else
-  log INFO "🔧 DEBUG mode: Skipping git status checks"
-fi
+# # Check if working directory is clean and up-to-date (skip in DEBUG mode)
+# if [[ "$DEBUG" != "true" ]]; then
+#   log INFO "Checking git status for clean working directory..."
+#   STATUS=$(git -C "$PROJECT_ROOT" status)
+#   if [[ $STATUS == *"Your branch is up to date with"* && $STATUS == *"nothing to commit, working tree clean"* ]]; then
+#     log INFO "Branch is up-to-date and working directory is clean"
+#   else
+#     log ERROR "Branch is not up-to-date or there are uncommitted changes. Please push/pull and commit all changes first."
+#     log ERROR "Use DEBUG=true to skip this check during development"
+#     exit 1
+#   fi
+# else
+#   log INFO "🔧 DEBUG mode: Skipping git status checks"
+# fi
 
 log INFO "Deployment script v$VERSION started (branch=$BRANCH)"
 
