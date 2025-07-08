@@ -19,7 +19,11 @@ setup_keystore() {
       "keyAlias=$PRODUCTION_KEY_ALIAS" \
       "storeFile=master-upload.keystore" > "$key_props_path"
 
-    echo "$PRODUCTION_KEYSTORE" | base64 --decode > "$keystore_dest/master-upload.keystore"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      echo "$PRODUCTION_KEYSTORE" | base64 -D > "$keystore_dest/master-upload.keystore"
+    else
+      echo "$PRODUCTION_KEYSTORE" | base64 --decode > "$keystore_dest/master-upload.keystore"
+    fi
   else
     printf '%s\n' \
       "storePassword=$DEV_KEYSTORE_PASSWORD" \
@@ -27,7 +31,11 @@ setup_keystore() {
       "keyAlias=$DEV_KEY_ALIAS" \
       "storeFile=upload.keystore" > "$key_props_path"
 
-    echo "$DEV_KEYSTORE" | base64 --decode > "$keystore_dest/upload.keystore"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      echo "$DEV_KEYSTORE" | base64 -D > "$keystore_dest/upload.keystore"
+    else
+      echo "$DEV_KEYSTORE" | base64 --decode > "$keystore_dest/upload.keystore"
+    fi
   fi
 }
 

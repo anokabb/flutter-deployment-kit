@@ -101,6 +101,17 @@ check_requirements() {
 }
 
 # ------------------------------------------------------
+# Cross-platform base64 decode
+# ------------------------------------------------------
+base64_decode() {
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    base64 -D
+  else
+    base64 -d
+  fi
+}
+
+# ------------------------------------------------------
 # Error trap helper – call with: `trap 'trap_error $LINENO' ERR`
 # ------------------------------------------------------
 trap_error() {

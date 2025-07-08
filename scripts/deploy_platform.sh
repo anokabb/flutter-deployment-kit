@@ -136,7 +136,11 @@ deploy_platform() {
       bundle install
 
       # Create key file for Fastlane (moved outside build block)
-      echo "$APP_STORE_CONNECT_KEY_CONTENT" | base64 --decode > AppStoreConnect.p8
+      if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$APP_STORE_CONNECT_KEY_CONTENT" | base64 -D > AppStoreConnect.p8
+      else
+        echo "$APP_STORE_CONNECT_KEY_CONTENT" | base64 --decode > AppStoreConnect.p8
+      fi
       chmod 600 AppStoreConnect.p8
 
       bundle exec fastlane ios deploy
@@ -146,7 +150,11 @@ deploy_platform() {
     pushd android >/dev/null || exit 1
       bundle install
       if [[ "$platform" == "android" ]]; then
-        echo "$PLAYSTORE_KEY" | base64 --decode > playstore.json
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          echo "$PLAYSTORE_KEY" | base64 -D > playstore.json
+        else
+          echo "$PLAYSTORE_KEY" | base64 --decode > playstore.json
+        fi
         bundle exec fastlane deploy_google_play
         secure_delete playstore.json
       else
