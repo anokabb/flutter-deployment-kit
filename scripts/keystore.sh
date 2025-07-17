@@ -12,7 +12,7 @@ setup_keystore() {
   local keystore_dest="$PROJECT_ROOT/android/app"
   mkdir -p "$keystore_dest"
 
-  if [[ "$branch" == "master" ]]; then
+  if [[ "$branch" == "master" || "$branch" == "staging" ]]; then
     printf '%s\n' \
       "storePassword=$PRODUCTION_KEYSTORE_PASSWORD" \
       "keyPassword=$PRODUCTION_KEY_PASSWORD" \

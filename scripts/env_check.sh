@@ -13,7 +13,7 @@ check_env_vars() {
   local missing=()
 
   # ---------- Android keystore / production vs test ----------
-  if [[ "$BRANCH" == "master" ]]; then
+  if [[ "$BRANCH" == "master" || "$BRANCH" == "staging" ]]; then
     [[ -z "$PRODUCTION_KEYSTORE" ]] && missing+=(PRODUCTION_KEYSTORE)
     [[ -z "$PRODUCTION_KEYSTORE_PASSWORD" ]] && missing+=(PRODUCTION_KEYSTORE_PASSWORD)
     [[ -z "$PRODUCTION_KEY_PASSWORD" ]] && missing+=(PRODUCTION_KEY_PASSWORD)

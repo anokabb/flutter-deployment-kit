@@ -125,8 +125,8 @@ fi
 # ----------------------------------------
 BRANCH=$(git -C "$PROJECT_ROOT" rev-parse --abbrev-ref HEAD)
 if [[ "$DEBUG" != "true" ]]; then
-  if [[ ! "$BRANCH" =~ ^(master|main|test_app)$ ]]; then
-    log ERROR "Unsupported branch '$BRANCH' – must be master or main or test_app"
+  if [[ ! "$BRANCH" =~ ^(master|main|test_app|staging)$ ]]; then
+    log ERROR "Unsupported branch '$BRANCH' – must be master or main or test_app or staging"
     exit 1
   fi
 fi
@@ -160,7 +160,7 @@ else
 fi
 
 # Default app naming – can be overridden in deploy.env
-if [[ "$BRANCH" == "master" ]]; then
+if [[ "$BRANCH" == "master" || "$BRANCH" == "staging" ]]; then
   APP_PREFIX="${APP_PREFIX:-MyApp}"
   PACKAGE_NAME="${PACKAGE_NAME:-com.example.myapp}"
 else
