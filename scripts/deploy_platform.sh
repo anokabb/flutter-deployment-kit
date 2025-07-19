@@ -43,6 +43,10 @@ deploy_platform() {
     else
       export AAB_PATH="$BUILD_PATH"
     fi
+    
+    # Use the existing build path directly
+    NEW_APP_PATH="$BUILD_PATH"
+    log INFO "Using existing build file: $NEW_APP_PATH"
   else
     # Normal build process
     if [[ "$platform" == "ios" ]]; then

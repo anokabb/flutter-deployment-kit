@@ -6,7 +6,6 @@ export LOG_FILE="${HOME}/.slack_deploy.log"
 
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-CURL_TIMEOUT=${CURL_TIMEOUT:-60}
 SLACK_CHANNEL=${SLACK_CHANNEL:-"#general"}
 
 # post_slack_message <message_text>
@@ -30,7 +29,7 @@ post_slack_message() {
   payload=$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$message" '{channel:$channel,text:$text,unfurl_links:false,as_user:true}')
 
   local response
-  response=$(curl --max-time "$CURL_TIMEOUT" -s -w "\n%{http_code}" \
+  response=$(curl -s -w "\n%{http_code}" \
       -X POST \
       -H "Authorization: Bearer ${SLACK_TOKEN}" \
       -H "Content-Type: application/json" \

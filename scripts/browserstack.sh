@@ -2,8 +2,6 @@
 
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-CURL_TIMEOUT=${CURL_TIMEOUT:-60}
-
 # upload_to_browserstack <platform> <new_app_path>
 # Sets global APP_ID, SESSION_URL and MESSAGE_TEXT env vars.
 upload_to_browserstack() {
@@ -13,7 +11,7 @@ upload_to_browserstack() {
   log INFO "Uploading $NEW_APP_PATH to BrowserStack ..."
 
   local response
-  response=$(curl --max-time "$CURL_TIMEOUT" -s -w "\n%{http_code}" -u "$BROWSERSTACK_API_USERNAME:$BROWSERSTACK_API_PASSWORD" \
+  response=$(curl -s -w "\n%{http_code}" -u "$BROWSERSTACK_API_USERNAME:$BROWSERSTACK_API_PASSWORD" \
     -X POST "https://api-cloud.browserstack.com/app-live/upload" \
     -F "file=@${NEW_APP_PATH}")
 
