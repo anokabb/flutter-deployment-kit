@@ -108,7 +108,7 @@ if [[ "$PLATFORM" != "all" ]]; then
       usage
     fi
     # Check if Huawei is disabled but was requested
-    if [[ "$platform" == "huawei" && "${HUAWEI_ENABLED:-false}" != "true" ]]; then
+    if [[ "$platform" == "huawei" && "$HUAWEI_ENABLED" != "true" ]]; then
       log WARN "Huawei support is disabled (HUAWEI_ENABLED=false)"
       continue
     fi
