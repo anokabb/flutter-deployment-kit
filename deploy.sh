@@ -107,11 +107,7 @@ if [[ "$PLATFORM" != "all" ]]; then
       log ERROR "Invalid platform: $platform"
       usage
     fi
-    # Check if Huawei is disabled but was requested
-    if [[ "$platform" == "huawei" && "$HUAWEI_ENABLED" != "true" ]]; then
-      log WARN "Huawei support is disabled (HUAWEI_ENABLED=false)"
-      continue
-    fi
+  
   done
 fi
 
