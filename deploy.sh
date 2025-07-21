@@ -308,17 +308,17 @@ for i in "${!deployment_pids[@]}"; do
   
   # Wait for this deployment to complete
   if wait $pid; then
-    log INFO "✅ $platform: Success"
+    log INFO "✅ $platform: Success (Version $(get_full_version))"
   else
-    log ERROR "❌ $platform: Failed"
+    log ERROR "❌ $platform: Failed (Version $(get_full_version))"
     ((failed_deployments++))
   fi
 done
 
 # Report final status
 if [[ $failed_deployments -eq 0 ]]; then
-  log INFO "All platform deployments completed successfully ✅"
+  log INFO "All platform deployments completed successfully for Version $(get_full_version) ✅"
 else
-  log ERROR "Some deployments failed. Exiting with status 1"
+  log ERROR "Some deployments failed for Version $(get_full_version). Exiting with status 1"
   exit 1
 fi

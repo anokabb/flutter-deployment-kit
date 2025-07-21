@@ -40,4 +40,17 @@ update_pubspec_version() {
   log INFO "Updated pubspec.yaml to ${current_semver}+${build_number}"
 }
 
+# get_full_version
+get_full_version() {
+  local full_version
+  full_version=$(grep -E '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed -E 's/version:[[:space:]]*//')
+  
+  if [[ -z "$full_version" ]]; then
+    log ERROR "Unable to determine full version from pubspec.yaml"
+    return 1
+  fi
+  
+  echo "$full_version"
+}
+
 return 0 
