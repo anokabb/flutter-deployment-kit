@@ -116,16 +116,7 @@ if [[ -n "$BUILD_NUMBER" ]]; then
 [[ ! "$BUILD_NUMBER" =~ ^[0-9]+$ ]] && usage
 fi
 
-# ----------------------------------------
-# Git branch validation
-# ----------------------------------------
-BRANCH=$(git -C "$PROJECT_ROOT" rev-parse --abbrev-ref HEAD)
-if [[ "$DEBUG" != "true" ]]; then
-  if [[ ! "$BRANCH" =~ ^(master|main|test_app|staging)$ ]]; then
-    log ERROR "Unsupported branch '$BRANCH' – must be master or main or test_app or staging"
-    exit 1
-  fi
-fi
+
 
 # # Check if working directory is clean and up-to-date (skip in DEBUG mode)
 # if [[ "$DEBUG" != "true" ]]; then
@@ -142,7 +133,6 @@ fi
 #   log INFO "🔧 DEBUG mode: Skipping git status checks"
 # fi
 
-log INFO "Deployment script v$VERSION started (branch=$BRANCH)"
 
 # ----------------------------------------
 # Load env file
@@ -155,19 +145,10 @@ else
   exit 1
 fi
 
-# Default app naming – can be overridden in deploy.env
-if [[ "$BRANCH" == "master" || "$BRANCH" == "staging" ]]; then
-  APP_PREFIX="${APP_PREFIX:-MyApp}"
-  PACKAGE_NAME="${PACKAGE_NAME:-com.example.myapp}"
-else
-  APP_PREFIX="${APP_PREFIX:-MyApp-Test}"
-  PACKAGE_NAME="${PACKAGE_NAME:-com.example.myapp.test}"
-fi
 
 # Export additional variables that Fastlane might need
 export PACKAGE_NAME
 export BUILD_NUMBER
-export BRANCH
 export GOOGLE_PLAY_TRACK="${GOOGLE_PLAY_TRACK:-internal}"
 export APP_STORE_CONNECT_KEY_ID
 export APP_STORE_CONNECT_ISSUER_ID
@@ -236,7 +217,7 @@ for platform in "${PLATFORMS_TO_CHECK[@]}"; do
   check_env_vars "$platform"
 done
 
-setup_keystore "$BRANCH"
+setup_keystore
 
 # Determine build number: use provided value or increment current
 if [[ -z "$BUILD_NUMBER" ]]; then

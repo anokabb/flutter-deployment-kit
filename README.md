@@ -165,15 +165,20 @@ HUAWEI_ENABLED="true"              # Disable Huawei AppGallery support
 BROWSERSTACK_ENABLED="true"        # Disable BrowserStack uploads for QA
 SLACK_NOTIFICATIONS_ENABLED="true" # Disable Slack notifications
 
-# App Naming (optional - defaults based on branch)
-APP_PREFIX="MyApp"
-PACKAGE_NAME="com.example.myapp" # e.g., com.yourcompany.appname
+# App Package Names
+APP_PREFIX="MyApp"                # Optional - prefix for app name
+PACKAGE_NAME="com.example.myapp"  # Default package name for all platforms
+HUAWEI_PACKAGE_NAME=""           # Optional - defaults to PACKAGE_NAME if not set
+
+# Google Play Link (Optional)
+GOOGLE_PLAY_LINK_TEST_APP=""     # Optional - link for submitting app to Google Play
+                                # If provided, app will be uploaded as draft
 
 # Slack Notifications
 SLACK_TOKEN="xoxb-YOUR_SLACK_BOT_TOKEN"
 SLACK_CHANNEL="#app-testing"    # Channel for deployment notifications (Mandatory if Slack enabled)
 USER_TO_TAG="U123ABCDEF"        # Slack User ID to mention (e.g., QA lead) (Mandatory if Slack enabled)
-DEV_USER_ID="UDEFGH123"         # Optional: Slack User ID for dev-specific pings (e.g., for test_app branch failures)
+DEV_USER_ID="UDEFGH123"         # Optional: Slack User ID for dev-specific pings
 
 # BrowserStack (for QA testing links)
 BROWSERSTACK_API_USERNAME="your_browserstack_username"
@@ -181,17 +186,11 @@ BROWSERSTACK_API_PASSWORD="your_browserstack_access_key"
 
 # ── Android Configuration ─────────────────────────────────
 
-# Keystore for Production (master branch)
-PRODUCTION_KEYSTORE="base64_of_production_keystore_jks_file"
-PRODUCTION_KEYSTORE_PASSWORD="production_keystore_password"
-PRODUCTION_KEY_PASSWORD="production_key_password"
-PRODUCTION_KEY_ALIAS="production_key_alias"
-
-# Keystore for Development/Testing (non-master branches)
-DEV_KEYSTORE="base64_of_development_keystore_jks_file"
-DEV_KEYSTORE_PASSWORD="development_keystore_password"
-DEV_KEY_PASSWORD="development_key_password"
-DEV_KEY_ALIAS="development_key_alias"
+# Android Keystore Configuration
+KEYSTORE="base64_of_keystore_jks_file"
+KEYSTORE_PASSWORD="keystore_password"
+KEY_PASSWORD="key_password"
+KEY_ALIAS="key_alias"
 
 # Google Play Store Service Account
 PLAYSTORE_KEY="base64_of_google_play_service_account_json_file"
@@ -221,6 +220,8 @@ IOS_ITC_TEAM_ID="YOUR_ITC_TEAM_ID"       # Optional: App Store Connect Team ID
 - Run `cat myfile | base64` to convert binary files (like `.jks`, `.json`, `.p8`) to base64 strings.
 - For Huawei (if enabled): `HUAWEI_CLIENT_ID` must be different from `HUAWEI_APP_ID`.
 - The script validates required credentials before starting any deployment.
+- If `GOOGLE_PLAY_LINK_TEST_APP` is provided, the app will be uploaded as a draft to Google Play Store.
+- `HUAWEI_PACKAGE_NAME` is optional and defaults to `PACKAGE_NAME` if not set.
 
 ---
 

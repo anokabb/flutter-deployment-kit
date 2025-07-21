@@ -45,11 +45,14 @@ upload_to_browserstack() {
   # Prepare message text (caller may customise later)
   MESSAGE_TEXT="<@$USER_TO_TAG> BrowserStack QA link for session <${SESSION_URL}|${APP_NAME}>"
 
-  # Add Google Play link for test_app branch if it's Android
-  if [[ "$platform" == "android" && "$BRANCH" == "test_app" && -n "$DEV_USER_ID" && -n "$GOOGLE_PLAY_LINK_TEST_APP" ]]; then
+  # Add Google Play link if provided and it's Android platform
+  if [[ "$platform" == "android" && -n "${GOOGLE_PLAY_LINK_TEST_APP}" ]]; then
+    local dev_mention=""
+    if [[ -n "${DEV_USER_ID}" ]]; then
+      dev_mention="<@$DEV_USER_ID> "
+    fi
     MESSAGE_TEXT="$MESSAGE_TEXT 
-    <@$DEV_USER_ID> Submit App to Google Play: <${GOOGLE_PLAY_LINK_TEST_APP}|Submit>"
-
+    ${dev_mention}Submit App to Google Play: <${GOOGLE_PLAY_LINK_TEST_APP}|Submit>"
   fi
 
   echo "$MESSAGE_TEXT"

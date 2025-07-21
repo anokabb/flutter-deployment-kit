@@ -18,7 +18,15 @@ deploy_platform() {
   export APP_NAME
   echo "APP_NAME: $APP_NAME"
 
-  log INFO "Starting deployment for $platform (branch=$BRANCH, build=$BUILD_NUMBER)"
+  log INFO "Starting deployment for $platform (build=$BUILD_NUMBER)"
+
+  # Set platform-specific package name
+  local current_package_name="$PACKAGE_NAME"
+  if [[ "$platform" == "huawei" && -n "${HUAWEI_PACKAGE_NAME}" ]]; then
+    current_package_name="$HUAWEI_PACKAGE_NAME"
+    log INFO "Using Huawei-specific package name: $current_package_name"
+  fi
+  export CURRENT_PACKAGE_NAME="$current_package_name"
 
   cd "$PROJECT_ROOT"
 
@@ -94,6 +102,9 @@ deploy_platform() {
       else
           log INFO "FLAVOR_ENABLED is false (or not set). Building without --flavor."
       fi
+
+      # Add package name to build command
+      flutter_build_command="$flutter_build_command --dart-define=PACKAGE_NAME=$current_package_name"
 
       $flutter_build_command
 

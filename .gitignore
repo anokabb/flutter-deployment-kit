@@ -109,3 +109,4 @@ id_rsa.pub
 ../android/fastlane/report.xml
 apple.p8
 google.json
+deploy.env.new

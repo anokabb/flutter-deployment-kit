@@ -1,41 +1,26 @@
 #!/usr/bin/env bash
-# Functions for configuring the Android keystore file based on the branch.
+# Functions for configuring the Android keystore file.
 
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
-# setup_keystore <branch>
+# setup_keystore
 setup_keystore() {
-  local branch="$1"
-  log INFO "Setting up keystore (branch=$branch)"
+  log INFO "Setting up keystore"
 
   local key_props_path="$PROJECT_ROOT/android/key.properties"
   local keystore_dest="$PROJECT_ROOT/android/app"
   mkdir -p "$keystore_dest"
 
-  if [[ "$branch" == "master" || "$branch" == "staging" ]]; then
-    printf '%s\n' \
-      "storePassword=$PRODUCTION_KEYSTORE_PASSWORD" \
-      "keyPassword=$PRODUCTION_KEY_PASSWORD" \
-      "keyAlias=$PRODUCTION_KEY_ALIAS" \
-      "storeFile=master-upload.keystore" > "$key_props_path"
+  printf '%s\n' \
+    "storePassword=$KEYSTORE_PASSWORD" \
+    "keyPassword=$KEY_PASSWORD" \
+    "keyAlias=$KEY_ALIAS" \
+    "storeFile=app.keystore" > "$key_props_path"
 
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      echo "$PRODUCTION_KEYSTORE" | base64 -D > "$keystore_dest/master-upload.keystore"
-    else
-      echo "$PRODUCTION_KEYSTORE" | base64 --decode > "$keystore_dest/master-upload.keystore"
-    fi
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "$KEYSTORE" | base64 -D > "$keystore_dest/app.keystore"
   else
-    printf '%s\n' \
-      "storePassword=$DEV_KEYSTORE_PASSWORD" \
-      "keyPassword=$DEV_KEY_PASSWORD" \
-      "keyAlias=$DEV_KEY_ALIAS" \
-      "storeFile=upload.keystore" > "$key_props_path"
-
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      echo "$DEV_KEYSTORE" | base64 -D > "$keystore_dest/upload.keystore"
-    else
-      echo "$DEV_KEYSTORE" | base64 --decode > "$keystore_dest/upload.keystore"
-    fi
+    echo "$KEYSTORE" | base64 --decode > "$keystore_dest/app.keystore"
   fi
 }
 

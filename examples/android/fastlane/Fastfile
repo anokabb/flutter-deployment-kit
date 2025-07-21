@@ -28,16 +28,16 @@ platform :android do
     end
     
     UI.message("Uploading AAB: #{aab_path}")
-    UI.message("Package name: #{ENV['PACKAGE_NAME']}")
+    UI.message("Package name: #{ENV['CURRENT_PACKAGE_NAME']}")
     UI.message("Track: #{ENV.fetch('GOOGLE_PLAY_TRACK', 'internal')}")
     
     upload_to_play_store(
       aab: aab_path,
-      package_name: ENV["PACKAGE_NAME"],
+      package_name: ENV["CURRENT_PACKAGE_NAME"],
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: ENV["BRANCH"] == "master" || ENV["BRANCH"] == "staging" ? "completed" : "draft",
+      release_status: ENV["GOOGLE_PLAY_LINK_TEST_APP"].to_s.empty? ? "completed" : "draft",
       track: ENV.fetch("GOOGLE_PLAY_TRACK", "internal"),
     )
   end
@@ -67,6 +67,7 @@ platform :android do
     UI.message("Uploading AAB to Huawei AppGallery: #{aab_path}")
     UI.message("App ID: #{ENV['HUAWEI_APP_ID']}")
     UI.message("Client ID: #{ENV['HUAWEI_CLIENT_ID']}")
+    UI.message("Package name: #{ENV['CURRENT_PACKAGE_NAME']}")
 
     begin
       # Deploy to Huawei AppGallery

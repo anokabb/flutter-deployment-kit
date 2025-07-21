@@ -12,18 +12,14 @@ check_env_vars() {
   local platform="$1"
   local missing=()
 
-  # ---------- Android keystore / production vs test ----------
-  if [[ "$BRANCH" == "master" || "$BRANCH" == "staging" ]]; then
-    [[ -z "$PRODUCTION_KEYSTORE" ]] && missing+=(PRODUCTION_KEYSTORE)
-    [[ -z "$PRODUCTION_KEYSTORE_PASSWORD" ]] && missing+=(PRODUCTION_KEYSTORE_PASSWORD)
-    [[ -z "$PRODUCTION_KEY_PASSWORD" ]] && missing+=(PRODUCTION_KEY_PASSWORD)
-    [[ -z "$PRODUCTION_KEY_ALIAS" ]] && missing+=(PRODUCTION_KEY_ALIAS)
-  else
-    [[ -z "$DEV_KEYSTORE" ]] && missing+=(DEV_KEYSTORE)
-    [[ -z "$DEV_KEYSTORE_PASSWORD" ]] && missing+=(DEV_KEYSTORE_PASSWORD)
-    [[ -z "$DEV_KEY_PASSWORD" ]] && missing+=(DEV_KEY_PASSWORD)
-    [[ -z "$DEV_KEY_ALIAS" ]] && missing+=(DEV_KEY_ALIAS)
-  fi
+  # ---------- Required shared variables ----------
+  [[ -z "$PACKAGE_NAME" ]] && missing+=(PACKAGE_NAME)
+
+  # ---------- Android keystore ----------
+  [[ -z "$KEYSTORE" ]] && missing+=(KEYSTORE)
+  [[ -z "$KEYSTORE_PASSWORD" ]] && missing+=(KEYSTORE_PASSWORD)
+  [[ -z "$KEY_PASSWORD" ]] && missing+=(KEY_PASSWORD)
+  [[ -z "$KEY_ALIAS" ]] && missing+=(KEY_ALIAS)
 
   # ---------- Platform-specific ---------
   if [[ "$platform" == "android" || "$platform" == "all" ]]; then
