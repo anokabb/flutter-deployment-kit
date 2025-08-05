@@ -46,9 +46,9 @@ upload_to_browserstack() {
   MESSAGE_TEXT="<@$USER_TO_TAG> BrowserStack QA link for session <${SESSION_URL}|${APP_NAME}>"
 
   # Add Google Play link if provided and it's Android platform
-  if [[ "$platform" == "android" && -n "${GOOGLE_PLAY_LINK_TEST_APP}" ]]; then
+  if [[ "$platform" == "android" && -n "${GOOGLE_PLAY_LINK_TEST_APP:-}" ]]; then
     local dev_mention=""
-    if [[ -n "${DEV_USER_ID}" ]]; then
+    if [[ -n "${DEV_USER_ID:-}" ]]; then
       dev_mention="<@$DEV_USER_ID> "
     fi
     MESSAGE_TEXT="$MESSAGE_TEXT 
