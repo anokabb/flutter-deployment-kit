@@ -62,7 +62,7 @@ deploy_platform() {
       fvm flutter build ipa --release --build-number="$BUILD_NUMBER" --export-method=app-store
 
       pushd ios >/dev/null || exit 1
-        bundle install
+        # bundle install
 
         # Find and export IPA path (from ios/ directory, so ../build is correct)
         local ipa_src
@@ -142,7 +142,7 @@ deploy_platform() {
   # ------------------------------------------------------
   if [[ "$platform" == "ios" ]]; then
     pushd ios >/dev/null || exit 1
-      bundle install
+      # bundle install
 
       # Create key file for Fastlane (moved outside build block)
       if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -157,8 +157,9 @@ deploy_platform() {
     popd >/dev/null
   else
     pushd android >/dev/null || exit 1
-      bundle install
+      # bundle install
       if [[ "$platform" == "android" ]]; then
+        log INFO "Deploying to Google Play with release status: ${RELEASE_STATUS:-completed}"
         if [[ "$OSTYPE" == "darwin"* ]]; then
           echo "$PLAYSTORE_KEY" | base64 -D > playstore.json
         else

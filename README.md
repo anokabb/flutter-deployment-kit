@@ -174,6 +174,9 @@ HUAWEI_PACKAGE_NAME=""           # Optional - defaults to PACKAGE_NAME if not se
 GOOGLE_PLAY_LINK_TEST_APP=""     # Optional - link for submitting app to Google Play
                                 # If provided, app will be uploaded as draft
 
+# Google Play Release Status
+RELEASE_STATUS="completed"        # Options: "completed" or "draft" - controls how the app is uploaded to Google Play
+
 # Slack Notifications
 SLACK_TOKEN="xoxb-YOUR_SLACK_BOT_TOKEN"
 SLACK_CHANNEL="#app-testing"    # Channel for deployment notifications (Mandatory if Slack enabled)
@@ -220,7 +223,8 @@ IOS_ITC_TEAM_ID="YOUR_ITC_TEAM_ID"       # Optional: App Store Connect Team ID
 - Run `cat myfile | base64` to convert binary files (like `.jks`, `.json`, `.p8`) to base64 strings.
 - For Huawei (if enabled): `HUAWEI_CLIENT_ID` must be different from `HUAWEI_APP_ID`.
 - The script validates required credentials before starting any deployment.
-- If `GOOGLE_PLAY_LINK_TEST_APP` is provided, the app will be uploaded as a draft to Google Play Store.
+- The `RELEASE_STATUS` variable controls how the app is uploaded to Google Play Store ("completed" or "draft").
+- If `GOOGLE_PLAY_LINK_TEST_APP` is provided, it will be included in Slack notifications for easy app submission.
 - `HUAWEI_PACKAGE_NAME` is optional and defaults to `PACKAGE_NAME` if not set.
 
 ---

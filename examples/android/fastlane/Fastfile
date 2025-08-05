@@ -37,7 +37,7 @@ platform :android do
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: ENV["GOOGLE_PLAY_LINK_TEST_APP"].to_s.empty? ? "completed" : "draft",
+      release_status: ENV.fetch("RELEASE_STATUS", "completed"),
       track: ENV.fetch("GOOGLE_PLAY_TRACK", "internal"),
     )
   end

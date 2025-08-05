@@ -24,6 +24,14 @@ check_env_vars() {
   # ---------- Platform-specific ---------
   if [[ "$platform" == "android" || "$platform" == "all" ]]; then
     [[ -z "$PLAYSTORE_KEY" ]] && missing+=(PLAYSTORE_KEY)
+    
+    # Validate RELEASE_STATUS for Android (Google Play)
+    if [[ -n "$RELEASE_STATUS" ]]; then
+      if [[ "$RELEASE_STATUS" != "completed" && "$RELEASE_STATUS" != "draft" ]]; then
+        log ERROR "RELEASE_STATUS must be either 'completed' or 'draft', got: $RELEASE_STATUS"
+        return 1
+      fi
+    fi
   fi
 
   if [[ "$platform" == "huawei" || "$platform" == "all" ]]; then
