@@ -187,11 +187,6 @@ deploy_platform() {
     post_slack_message "$MESSAGE_TEXT" || return 1 # Allow failure here if not critical
   else
     log INFO "Slack notification skipped (SLACK_NOTIFICATIONS_ENABLED=false)"
-    # Print message to console if Slack is disabled but we are not in DEBUG mode
-    if [[ "${DEBUG:-false}" != "true" ]]; then
-        log INFO "Message that would be sent to Slack:"
-        echo -e "$MESSAGE_TEXT"
-    fi
   fi
 
   show_mac_notification "$APP_NAME" "$platform" "${SESSION_URL:-}"
