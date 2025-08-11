@@ -53,30 +53,50 @@ PLATFORM=""
 BUILD_NUMBER=""
 DEBUG=${DEBUG:-false}
 BUILD_NAME=""  # Changed from BUILD_PATH to BUILD_NAME
+# Optional: CLI-provided TestFlight release notes
+CLI_TESTFLIGHT_RELEASE_NOTES=""
 
 usage() {
-  echo "Usage: $0 -p <platform(s)> [-n <build_number>] [-b <build_name>]" >&2
+  echo "Usage: $0 -p <platform(s)> [-n <build_number>] [-b <build_name>] [-t <testflight_notes>] [test_flight_note \"notes\"]" >&2
   echo "  -p: Platform(s) to deploy. Options:" >&2
   echo "      - Single: android, huawei, ios" >&2
   echo "      - Multiple: android,ios or android,huawei,ios" >&2
   echo "      - All: all" >&2
   echo "  -n: Build number (optional - if not provided, current build number will be incremented)" >&2
   echo "  -b: Build name (optional - name of the build file in releases directory, e.g. spur-ios-145.ipa)" >&2
+  echo "  -t: TestFlight release notes (optional - changelog string passed to TestFlight)" >&2
+  echo "      Alternative syntax also supported: test_flight_note \"Your notes...\"" >&2
   echo "" >&2
   echo "Note: Huawei platform can be disabled by setting HUAWEI_ENABLED=false in deploy.env" >&2
   exit 1
 }
 
-while getopts "p:n:b:" opt; do
+while getopts "p:n:b:t:" opt; do
   case $opt in
     p) PLATFORM="$OPTARG" ;;
     n) BUILD_NUMBER="$OPTARG" ;;
     b) BUILD_NAME="$OPTARG" ;;
+    t) CLI_TESTFLIGHT_RELEASE_NOTES="$OPTARG" ;;
     *) usage ;;
   esac
 done
 
 [[ -z "$PLATFORM" ]] && usage
+
+# Parse remaining free-form args for compatibility, e.g.: test_flight_note "..."
+shift $((OPTIND - 1))
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    test_flight_note|testflight_note|--testflight-note)
+      shift
+      CLI_TESTFLIGHT_RELEASE_NOTES="${1:-}"
+      [[ -n "${1:-}" ]] && shift || true
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
 # Validate build name if provided
 if [[ -n "$BUILD_NAME" ]]; then
@@ -143,6 +163,13 @@ if [[ -f "$SCRIPT_DIR/deploy.env" ]]; then
 else
   log ERROR "deploy.env missing – copy deploy.env.example and configure the values"
   exit 1
+fi
+
+# Only accept TestFlight notes from CLI; ignore any from env
+if [[ -n "${CLI_TESTFLIGHT_RELEASE_NOTES:-}" ]]; then
+  export TESTFLIGHT_RELEASE_NOTES="$CLI_TESTFLIGHT_RELEASE_NOTES"
+else
+  unset TESTFLIGHT_RELEASE_NOTES || true
 fi
 
 

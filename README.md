@@ -24,6 +24,7 @@ Copy the entire `deployment/` directory and the two `fastlane/` directories (`io
   - [Platform Configuration](#platform-configuration)
   - [Notifications](#notifications)
     - [macOS Desktop Notifications](#macos-desktop-notifications)
+  - [TestFlight Release Notes](#testflight-release-notes)
 
 ---
 
@@ -139,6 +140,7 @@ DEBUG=true ./deployment/deploy.sh -p all -n 42
 - **✅ Improved Path Resolution**: Robust file path handling for AAB and IPA files.
 - **✅ Credential Validation**: Automatic validation of required credentials (only if features are enabled).
 - **✅ Environment Variable Export**: Proper export of environment variables to Fastlane processes.
+- **✅ TestFlight Release Notes**: Optional `TESTFLIGHT_RELEASE_NOTES` can be set to include a changelog when uploading to TestFlight.
 - **✅ Comprehensive .gitignore**: Deployment-specific gitignore.
 
 The script will:
@@ -364,6 +366,15 @@ BROWSERSTACK_ENABLED="false"
 # Disable Slack notifications
 SLACK_NOTIFICATIONS_ENABLED="false"
 ```
+
+### TestFlight Release Notes
+Provide release notes for TestFlight uploads via CLI flags only:
+
+```bash
+./deployment/deploy.sh -p ios -t "Fixed login crash"
+```
+
+If provided, these notes are passed to TestFlight as the build changelog. If omitted, Fastlane will use the default behavior. Notes are not read from the env file.
 
 ### Notifications
 The deployment system provides comprehensive notifications to keep you informed of deployment progress:

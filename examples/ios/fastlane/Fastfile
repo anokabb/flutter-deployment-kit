@@ -48,7 +48,8 @@ platform :ios do
     upload_to_testflight(
       ipa: ipa_path,
       skip_waiting_for_build_processing: true,
-      app_identifier: ENV["IOS_APP_IDENTIFIER"]
+      app_identifier: ENV["IOS_APP_IDENTIFIER"],
+      changelog: ENV.fetch("TESTFLIGHT_RELEASE_NOTES", nil)
     )
   end
 end 
