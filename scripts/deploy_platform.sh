@@ -91,7 +91,7 @@ deploy_platform() {
       fi
     else
       # Android / Huawei build (AAB)
-      local flutter_build_command="fvm flutter build appbundle --build-number=$BUILD_NUMBER --dart-define=ENV=production"
+      local flutter_build_command="fvm flutter build appbundle --build-number=$BUILD_NUMBER"
       if [[ "${FLAVOR_ENABLED:-false}" == "true" ]]; then
         log INFO "FLAVOR_ENABLED is true. Using platform '$platform' as flavor."
         flutter_build_command="$flutter_build_command --flavor $platform"
