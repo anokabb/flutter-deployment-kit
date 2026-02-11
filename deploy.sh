@@ -51,18 +51,22 @@ trap cleanup EXIT INT TERM
 # ----------------------------------------
 PLATFORM=""
 BUILD_NUMBER=""
+SKIP_INCREMENT=false
 DEBUG=${DEBUG:-false}
 BUILD_NAME=""  # Changed from BUILD_PATH to BUILD_NAME
 # Optional: CLI-provided TestFlight release notes
 CLI_TESTFLIGHT_RELEASE_NOTES=""
 
 usage() {
-  echo "Usage: $0 -p <platform(s)> [-n <build_number>] [-b <build_name>] [-t <testflight_notes>] [test_flight_note \"notes\"]" >&2
+  echo "Usage: $0 -p <platform(s)> [-n <build_number|current|fix>] [-b <build_name>] [-t <testflight_notes>] [test_flight_note \"notes\"]" >&2
   echo "  -p: Platform(s) to deploy. Options:" >&2
   echo "      - Single: android, huawei, ios" >&2
   echo "      - Multiple: android,ios or android,huawei,ios" >&2
   echo "      - All: all" >&2
-  echo "  -n: Build number (optional - if not provided, current build number will be incremented)" >&2
+  echo "  -n: Build number handling:" >&2
+  echo "      - <number>: Use specific build number" >&2
+  echo "      - current/fix: Use current build number without incrementing" >&2
+  echo "      - (omitted): Increment current build number" >&2
   echo "  -b: Build name (optional - name of the build file in releases directory, e.g. spur-ios-145.ipa)" >&2
   echo "  -t: TestFlight release notes (optional - changelog string passed to TestFlight)" >&2
   echo "      Alternative syntax also supported: test_flight_note \"Your notes...\"" >&2
@@ -74,7 +78,14 @@ usage() {
 while getopts "p:n:b:t:" opt; do
   case $opt in
     p) PLATFORM="$OPTARG" ;;
-    n) BUILD_NUMBER="$OPTARG" ;;
+    n)
+      BUILD_NUMBER="$OPTARG"
+      # Check if it's a special keyword for skipping increment
+      if [[ "$BUILD_NUMBER" == "current" || "$BUILD_NUMBER" == "fix" ]]; then
+        SKIP_INCREMENT=true
+        BUILD_NUMBER=""
+      fi
+      ;;
     b) BUILD_NAME="$OPTARG" ;;
     t) CLI_TESTFLIGHT_RELEASE_NOTES="$OPTARG" ;;
     *) usage ;;
@@ -131,8 +142,8 @@ if [[ "$PLATFORM" != "all" ]]; then
   done
 fi
 
-# If build number is provided, validate it; otherwise we'll increment current
-if [[ -n "$BUILD_NUMBER" ]]; then
+# If build number is provided (and not a skip keyword), validate it
+if [[ -n "$BUILD_NUMBER" && "$SKIP_INCREMENT" == "false" ]]; then
 [[ ! "$BUILD_NUMBER" =~ ^[0-9]+$ ]] && usage
 fi
 
@@ -247,8 +258,11 @@ done
 
 setup_keystore
 
-# Determine build number: use provided value or increment current
-if [[ -z "$BUILD_NUMBER" ]]; then
+# Determine build number: use provided value, current value, or increment current
+if [[ "$SKIP_INCREMENT" == "true" ]]; then
+  BUILD_NUMBER=$(get_current_build_number)
+  log INFO "Using current build number without incrementing: $BUILD_NUMBER"
+elif [[ -z "$BUILD_NUMBER" ]]; then
   log INFO "No build number provided, incrementing current build number"
   CURRENT_BUILD_NUMBER=$(get_current_build_number)
   BUILD_NUMBER=$((CURRENT_BUILD_NUMBER + 1))
