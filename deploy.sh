@@ -206,23 +206,38 @@ export SLACK_NOTIFICATIONS_ENABLED="${SLACK_NOTIFICATIONS_ENABLED:-true}"
 filter_platforms() {
   local input_platforms="$1"
   local filtered_platforms=()
-  
-  # Handle "all" platforms
+
+  # Handle "all" platforms with specific ordering: android, huawei, ios
   if [[ "$input_platforms" == "all" ]]; then
-    filtered_platforms+=("android" "ios")
+    filtered_platforms+=("android")
     [[ "$HUAWEI_ENABLED" == "true" ]] && filtered_platforms+=("huawei")
+    filtered_platforms+=("ios")
   else
-    # Split and filter platforms
+    # Split and filter platforms, then reorder to ensure android first, then huawei, then ios
     IFS=',' read -ra TEMP_PLATFORMS <<< "$input_platforms"
+    local android_found=false
+    local huawei_found=false
+    local ios_found=false
+
+    # First pass: check which platforms are requested and enabled
     for platform in "${TEMP_PLATFORMS[@]}"; do
       platform=$(echo "$platform" | xargs)  # Trim whitespace
       if [[ "$platform" == "huawei" && "$HUAWEI_ENABLED" != "true" ]]; then
         continue
       fi
-      filtered_platforms+=("$platform")
+      case "$platform" in
+        android) android_found=true ;;
+        huawei) huawei_found=true ;;
+        ios) ios_found=true ;;
+      esac
     done
+
+    # Second pass: add platforms in correct order
+    [[ "$android_found" == "true" ]] && filtered_platforms+=("android")
+    [[ "$huawei_found" == "true" ]] && filtered_platforms+=("huawei")
+    [[ "$ios_found" == "true" ]] && filtered_platforms+=("ios")
   fi
-  
+
   # Return filtered platforms as comma-separated string
   local IFS=','
   echo "${filtered_platforms[*]}"
@@ -298,45 +313,111 @@ fi
 # ----------------------------------------
 # Deploy 🎉
 # ----------------------------------------
-# Deploy to filtered platforms in parallel
+# Deploy to filtered platforms with mixed parallel/sequential logic
 IFS=',' read -ra PLATFORMS <<< "$FILTERED_PLATFORMS"
-deployment_pids=()
-deployment_platforms=()
+failed_deployments=0
 
-# Start all deployments in parallel
+# Check if huawei is in the platforms
+huawei_present=false
+ios_present=false
+android_present=false
 for platform in "${PLATFORMS[@]}"; do
-  # Trim whitespace from platform
   platform=$(echo "$platform" | xargs)
-  log INFO "Starting deployment for platform: $platform"
-  
-  # Start deployment in background
-  (
-    if ! deploy_platform "$platform"; then
-      log ERROR "Deployment failed for platform: $platform"
-      exit 1
-    fi
-    log INFO "Successfully completed deployment for platform: $platform"
-  ) &
-  
-  # Store the PID and platform
-  deployment_pids+=($!)
-  deployment_platforms+=("$platform")
+  case "$platform" in
+    huawei) huawei_present=true ;;
+    ios) ios_present=true ;;
+    android) android_present=true ;;
+  esac
 done
 
-# Wait for all deployments to complete and check their status
-failed_deployments=0
-for i in "${!deployment_pids[@]}"; do
-  pid=${deployment_pids[$i]}
-  platform=${deployment_platforms[$i]}
-  
-  # Wait for this deployment to complete
-  if wait $pid; then
-    log INFO "✅ $platform: Success (Version $(get_full_version))"
+if [[ "$huawei_present" == "true" ]]; then
+  # Huawei is present: android first, then huawei, ios in parallel
+  ios_pid=""
+
+  # Start iOS deployment in background if present
+  if [[ "$ios_present" == "true" ]]; then
+    log INFO "Starting iOS deployment in parallel"
+    (
+      if ! deploy_platform "ios"; then
+        log ERROR "Deployment failed for platform: ios"
+        exit 1
+      fi
+      log INFO "Successfully completed deployment for platform: ios"
+    ) &
+    ios_pid=$!
+  fi
+
+  # Run android sequentially
+  if [[ "$android_present" == "true" ]]; then
+    log INFO "Starting deployment for platform: android"
+    if deploy_platform "android"; then
+      log INFO "Successfully completed deployment for platform: android"
+      log INFO "✅ android: Success (Version $(get_full_version))"
+    else
+      log ERROR "Deployment failed for platform: android"
+      log ERROR "❌ android: Failed (Version $(get_full_version))"
+      ((failed_deployments++))
+    fi
+  fi
+
+  # Run huawei sequentially after android
+  log INFO "Starting deployment for platform: huawei"
+  if deploy_platform "huawei"; then
+    log INFO "Successfully completed deployment for platform: huawei"
+    log INFO "✅ huawei: Success (Version $(get_full_version))"
   else
-    log ERROR "❌ $platform: Failed (Version $(get_full_version))"
+    log ERROR "Deployment failed for platform: huawei"
+    log ERROR "❌ huawei: Failed (Version $(get_full_version))"
     ((failed_deployments++))
   fi
-done
+
+  # Wait for iOS to complete if it was started
+  if [[ -n "$ios_pid" ]]; then
+    if wait $ios_pid; then
+      log INFO "✅ ios: Success (Version $(get_full_version))"
+    else
+      log ERROR "❌ ios: Failed (Version $(get_full_version))"
+      ((failed_deployments++))
+    fi
+  fi
+else
+  # No huawei: run android and ios in parallel (original logic)
+  deployment_pids=()
+  deployment_platforms=()
+
+  # Start all deployments in parallel
+  for platform in "${PLATFORMS[@]}"; do
+    platform=$(echo "$platform" | xargs)
+    log INFO "Starting deployment for platform: $platform"
+
+    # Start deployment in background
+    (
+      if ! deploy_platform "$platform"; then
+        log ERROR "Deployment failed for platform: $platform"
+        exit 1
+      fi
+      log INFO "Successfully completed deployment for platform: $platform"
+    ) &
+
+    # Store the PID and platform
+    deployment_pids+=($!)
+    deployment_platforms+=("$platform")
+  done
+
+  # Wait for all deployments to complete and check their status
+  for i in "${!deployment_pids[@]}"; do
+    pid=${deployment_pids[$i]}
+    platform=${deployment_platforms[$i]}
+
+    # Wait for this deployment to complete
+    if wait $pid; then
+      log INFO "✅ $platform: Success (Version $(get_full_version))"
+    else
+      log ERROR "❌ $platform: Failed (Version $(get_full_version))"
+      ((failed_deployments++))
+    fi
+  done
+fi
 
 # Report final status
 if [[ $failed_deployments -eq 0 ]]; then
